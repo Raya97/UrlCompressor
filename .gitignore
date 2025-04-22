@@ -1,34 +1,62 @@
-HELP.md
+# === Java / Maven ===
 target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+*.class
+*.jar
+*.war
+*.ear
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# === Logs ===
+*.log
+logs/
+*.out
+*.err
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+# === IntelliJ IDEA ===
+.idea/
 *.iml
 *.ipr
+*.iws
+out/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
+# === VS Code ===
 .vscode/
-.mvn/wrapper/maven-wrapper.properties
+
+# === OS files ===
+.DS_Store
+Thumbs.db
+
+# === Test reports / coverage ===
+*.exec
+jacoco.exec
+coverage/
+test-output/
+
+# === Environment files ===
+.env
+.env.*
+*.env
+*.env.local
+application-test.yaml
+application-dev.yaml
+application-prod.yaml
+application-local.yaml
+
+# === Token / Secrets ===
+*.key
+*.pem
+*.crt
+jwt.secret
+secret.key
+*.p12
+*.jks
+
+# === Docker / Compose ===
+docker-compose.override.yml
+.docker/
+
+# === Misc ===
+*.swp
+*.swo
+*.tmp
+*.bak
+*.backup
