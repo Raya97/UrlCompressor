@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang='uk'>
+<head>
+<meta charset='UTF-8'>
+<title>LIONESS API Documentation</title>
+<style>
+body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; color: #333; }
+h1, h2, h3 { color: #0066cc; }
+code { background: #eee; padding: 2px 4px; border-radius: 3px; }
+pre { background: #f0f0f0; padding: 1em; border-left: 4px solid #ccc; overflow-x: auto; }
+</style>
+</head>
+<body>
+<h1>LIONESS API v2 - URL Shortener & Notes</h1>
+<p><strong>Version:</strong> 2.0.0</p>
+<p>Сервіс дозволяє реєструватися, логінитися, створювати короткі посилання,
+керувати нотатками, авторизуватися через JWT та використовувати різні ролі (USER, MODERATOR, ADMIN).
+</p>
+<h2>Endpoints:</h2>
+<h3><code>/auth/register</code></h3>
+<p><strong>POST</strong>: Реєстрація нового користувача</p>
+<ul>
+<li><strong>Tags:</strong> auth</li>
+<li><strong>Responses:</strong><ul>
+<li><code>201</code>: Користувач успішно зареєстрований</li>
+<li><code>409</code>: </li>
+</ul></li>
+</ul>
+<h3><code>/auth/login</code></h3>
+<p><strong>POST</strong>: Авторизація користувача</p>
+<ul>
+<li><strong>Tags:</strong> auth</li>
+<li><strong>Responses:</strong><ul>
+<li><code>200</code>: Успішна авторизація з JWT</li>
+<li><code>401</code>: </li>
+</ul></li>
+</ul>
+<h3><code>/auth/refresh</code></h3>
+<p><strong>POST</strong>: Оновлення JWT токену</p>
+<ul>
+<li><strong>Tags:</strong> auth</li>
+<li><strong>Responses:</strong><ul>
+<li><code>200</code>: Токен успішно оновлено</li>
+<li><code>401</code>: </li>
+</ul></li>
+</ul>
+<h3><code>/auth/logout</code></h3>
+<p><strong>POST</strong>: Логаут користувача</p>
+<ul>
+<li><strong>Tags:</strong> auth</li>
+<li><strong>Responses:</strong><ul>
+<li><code>200</code>: Вихід успішний, токен додано до чорного списку</li>
+</ul></li>
+</ul>
+<h3><code>/url</code></h3>
+<p><strong>POST</strong>: Створення короткого URL</p>
+<ul>
+<li><strong>Tags:</strong> url</li>
+<li><strong>Responses:</strong><ul>
+<li><code>201</code>: </li>
+<li><code>400</code>: </li>
+</ul></li>
+</ul>
+<h3><code>/url/{shortUrl}</code></h3>
+<p><strong>GET</strong>: Отримати повний URL за скороченим</p>
+<ul>
+<li><strong>Tags:</strong> url</li>
+<li><strong>Responses:</strong><ul>
+<li><code>200</code>: Оригінальний URL отримано</li>
+<li><code>404</code>: </li>
+</ul></li>
+</ul>
+<h3><code>/stats/{shortUrl}</code></h3>
+<p><strong>GET</strong>: Отримати статистику за скороченим URL</p>
+<ul>
+<li><strong>Tags:</strong> url</li>
+<li><strong>Responses:</strong><ul>
+<li><code>200</code>: Статистика отримана</li>
+<li><code>404</code>: </li>
+</ul></li>
+</ul>
+<h3><code>/notes</code></h3>
+<p><strong>GET</strong>: Отримати нотатки</p>
+<ul>
+<li><strong>Tags:</strong> notes</li>
+<li><strong>Responses:</strong><ul>
+<li><code>200</code>: Усі нотатки користувача отримано</li>
+</ul></li>
+</ul>
+<p><strong>POST</strong>: Створити нотатку</p>
+<ul>
+<li><strong>Tags:</strong> notes</li>
+<li><strong>Responses:</strong><ul>
+<li><code>201</code>: Нотатку створено</li>
+</ul></li>
+</ul>
+<p><strong>PUT</strong>: Оновити нотатку</p>
+<ul>
+<li><strong>Tags:</strong> notes</li>
+<li><strong>Responses:</strong><ul>
+<li><code>200</code>: Нотатку оновлено</li>
+</ul></li>
+</ul>
+<p><strong>DELETE</strong>: Видалити нотатку</p>
+<ul>
+<li><strong>Tags:</strong> notes</li>
+<li><strong>Responses:</strong><ul>
+<li><code>200</code>: Нотатку видалено</li>
+</ul></li>
+</ul>
+<h3><code>/admin/test</code></h3>
+<p><strong>GET</strong>: Перевірка ролі ADMIN</p>
+<ul>
+<li><strong>Tags:</strong> admin</li>
+<li><strong>Responses:</strong><ul>
+<li><code>200</code>: Доступ ADMIN підтверджено</li>
+</ul></li>
+</ul>
+<h3><code>/moderator/test</code></h3>
+<p><strong>GET</strong>: Перевірка ролі MODERATOR</p>
+<ul>
+<li><strong>Tags:</strong> moderator</li>
+<li><strong>Responses:</strong><ul>
+<li><code>200</code>: Доступ MODERATOR підтверджено</li>
+</ul></li>
+</ul>
+</body></html>

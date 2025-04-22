@@ -1,0 +1,99 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Lioness API - URL Shortener & Notes",
+    "version": "2.0.0",
+    "description": "Потужний REST API, що дозволяє користувачам реєструватися, авторизуватися, керувати JWT токенами, створювати скорочені URL, повністю керувати нотатками та перевіряти доступ користувачів за ролями USER, MODERATOR та ADMIN."
+  },
+  "servers": [
+    { "url": "http://localhost:8080/api/v2", "description": "Dev server" },
+    { "url": "http://localhost:9999/api/v2", "description": "Production server" }
+  ],
+  "tags": [
+    { "name": "auth", "description": "Реєстрація, логін, керування токенами" },
+    { "name": "url", "description": "Створення та керування посиланнями" },
+    { "name": "notes", "description": "Повноцінний CRUD для нотаток" },
+    { "name": "admin", "description": "Адміністративні функції" },
+    { "name": "moderator", "description": "Функції для модераторів" }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Реєстрація нового користувача",
+        "responses": {
+          "201": { "description": "Користувача успішно зареєстровано" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Авторизація та видача JWT токену",
+        "responses": {
+          "200": { "description": "Авторизація успішна, токен видано" }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Оновлення JWT access токена",
+        "responses": {
+          "200": { "description": "Токен оновлено" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Логаут та блокування JWT токена",
+        "responses": {
+          "200": { "description": "Користувач успішно вийшов, токен заблоковано" }
+        }
+      }
+    },
+    "/url/shortFromLong": {
+      "post": {
+        "tags": ["url"],
+        "summary": "Створення короткого посилання",
+        "responses": {
+          "201": { "description": "Скорочене посилання створено" }
+        }
+      }
+    },
+    "/url/longFromShort": {
+      "get": {
+        "tags": ["url"],
+        "summary": "Отримання оригінального посилання",
+        "responses": {
+          "200": { "description": "Оригінальне посилання отримано" }
+        }
+      }
+    },
+    "/user/links": {
+      "get": {
+        "tags": ["url"],
+        "summary": "Отримання посилань користувача",
+        "responses": {
+          "200": { "description": "Посилання отримано" }
+        }
+      }
+    },
+    "/notes": {
+      "get": { "tags": ["notes"], "summary": "Отримання нотаток", "responses": { "200": { "description": "Нотатки отримано" } } },
+      "post": { "tags": ["notes"], "summary": "Створення нотатки", "responses": { "201": { "description": "Нотатку створено" } } },
+      "put": { "tags": ["notes"], "summary": "Оновлення нотатки", "responses": { "200": { "description": "Нотатку оновлено" } } },
+      "delete": { "tags": ["notes"], "summary": "Видалення нотатки", "responses": { "200": { "description": "Нотатку видалено" } } }
+    },
+    "/admin/test": { "get": { "tags": ["admin"], "summary": "Перевірка доступу ADMIN", "responses": { "200": { "description": "ADMIN доступ підтверджено" } } } },
+    "/moderator/test": { "get": { "tags": ["moderator"], "summary": "Перевірка доступу MODERATOR", "responses": { "200": { "description": "MODERATOR доступ підтверджено" } } } }
+  },
+  "components": {
+    "securitySchemes": { "BearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" } },
+    "schemas": {
+      "User": { "type": "object", "properties": { "username": {"type": "string", "example": "goit18"}, "password": {"type": "string", "example": "Thread18"} } }
+    }
+  },
+  "security": [{ "BearerAuth": [] }]
+}

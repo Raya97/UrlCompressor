@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="uk" class="theme-dark" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Помилка 500</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .top-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button, input {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        input#searchInput {
+            flex-grow: 1;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .error-title {
+            color: lightcoral;
+        }
+
+        pre {
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .json-key { color: #61dafb; }
+        .json-string { color: #ce9178; }
+        .json-number { color: #b5cea8; }
+        .json-boolean { color: #569cd6; }
+
+        .theme-dark {
+            background-color: #1e1e1e;
+            color: #ccc;
+        }
+
+        .theme-dark pre {
+            background-color: #2d2d2d;
+            color: #ccc;
+        }
+
+        .theme-dark button {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .theme-dark input {
+            background-color: #333;
+            color: white;
+        }
+
+        .theme-light {
+            background-color: #f5f5f5;
+            color: #222;
+        }
+
+        .theme-light pre {
+            background-color: #e0e0e0;
+            color: #222;
+        }
+
+        .theme-light button {
+            background-color: #e0e0e0;
+            color: #222;
+            border: 1px solid #ccc;
+        }
+
+        .theme-light input {
+            background-color: white;
+            color: #222;
+            border: 1px solid #ccc;
+        }
+
+        mark {
+            background-color: yellow;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Панель -->
+<div class="top-bar">
+    <button id="themeToggle">🌍 Змінити тему</button>
+    <button id="copyJson">🗋 Копіювати JSON</button>
+    <input id="searchInput" type="text" placeholder="🔍 Пошук...">
+</div>
+
+<h1>🙆‍♀️ <span class="error-title">Помилка <span style="color: lightcoral">500</span></span></h1>
+
+<!-- JSON та StackTrace -->
+<pre id="jsonContent"></pre>
+
+<!-- Кнопка + Collapsible блок для TRACE -->
+<div>
+    <button id="toggleTrace">🔽 Показати Trace</button>
+    <button id="copyTrace">📋 Копіювати Trace</button>
+    <button id="downloadJson">⬇ Завантажити JSON</button>
+    <button id="downloadTrace">⬇ Завантажити Trace</button>
+    <pre id="traceContent" style="display: none;"></pre>
+</div>
+
+<!-- Данні з сервера -->
+<pre id="jsonData"
+     style="display: none"
+     th:data-timestamp="${timestamp}"
+     th:data-message="${message}"
+     th:data-status="${status}"
+     th:data-exception="${exception}"
+     th:data-path="${path}"
+     th:data-trace="${trace}">
+</pre>
+
+<script>
+    const source = document.getElementById('jsonData');
+    const data = {
+        timestamp: source.dataset.timestamp,
+        message: source.dataset.message,
+        status: source.dataset.status,
+        exception: source.dataset.exception,
+        path: source.dataset.path,
+        trace: source.dataset.trace
+    };
+
+    const jsonContent = document.getElementById('jsonContent');
+    const traceContent = document.getElementById('traceContent');
+
+    function syntaxHighlight(json) {
+        if (typeof json !== 'string') {
+            json = JSON.stringify(json, null, 2);
+        }
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\u[a-zA-Z0-9]{4}|\[^u]|[^\"])*"(\s*:)?|\b(true|false|null)\b|\d+)/g, function (match) {
+            let cls = 'json-number';
+            if (/^"/.test(match)) {
+                cls = /:$/.test(match) ? 'json-key' : 'json-string';
+            } else if (/true|false/.test(match)) {
+                cls = 'json-boolean';
+            }
+            return `<span class="${cls}">${match}</span>`;
+        });
+    }
+
+    function updateJsonDisplay(obj = data) {
+        jsonContent.innerHTML = syntaxHighlight({
+            timestamp: obj.timestamp,
+            message: obj.message,
+            status: obj.status,
+            exception: obj.exception,
+            path: obj.path
+        });
+        traceContent.textContent = obj.trace;
+    }
+
+    updateJsonDisplay();
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+        document.documentElement.classList.toggle('theme-dark');
+        document.documentElement.classList.toggle('theme-light');
+    });
+
+    document.getElementById('copyJson').addEventListener('click', () => {
+        const plainText = JSON.stringify(data, null, 2);
+        const btn = document.getElementById('copyJson');
+
+        navigator.clipboard.writeText(plainText)
+            .then(() => {
+                btn.textContent = '✅ JSON скопійовано!';
+                btn.disabled = true;
+                setTimeout(() => {
+                    btn.textContent = '🗋 Копіювати JSON';
+                    btn.disabled = false;
+                }, 2000);
+            })
+            .catch(err => {
+                alert("❌ Помилка при копіюванні: " + err);
+            });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const highlight = (text, keyword) => {
+            if (!keyword) return text;
+            return text.replace(new RegExp(`(${keyword})`, 'gi'), '<mark>$1</mark>');
+        }
+
+        const highlighted = { ...data };
+        for (let key in highlighted) {
+            if (typeof highlighted[key] === 'string') {
+                highlighted[key] = highlight(highlighted[key], query);
+            }
+        }
+        updateJsonDisplay(highlighted);
+    });
+
+    const toggleTraceBtn = document.getElementById('toggleTrace');
+    const copyTraceBtn = document.getElementById('copyTrace');
+
+
+
+    toggleTraceBtn.addEventListener('click', () => {
+        const isVisible = traceContent.style.display !== 'none';
+        traceContent.style.display = isVisible ? 'none' : 'block';
+        toggleTraceBtn.textContent = isVisible ? '🔽 Показати Trace' : '🔼 Сховати Trace';
+    });
+
+    copyTraceBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(data.trace)
+            .then(() => {
+                copyTraceBtn.textContent = '✅ Trace скопійовано!';
+                copyTraceBtn.disabled = true;
+                setTimeout(() => {
+                    copyTraceBtn.textContent = '📋 Копіювати Trace';
+                    copyTraceBtn.disabled = false;
+                }, 2000);
+            })
+            .catch(err => {
+                alert("❌ Помилка при копіюванні Trace: " + err);
+            });
+    });
+
+    document.getElementById('downloadJson').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        triggerDownload(url, 'error.json');
+    });
+
+    document.getElementById('downloadTrace').addEventListener('click', () => {
+        const blob = new Blob([data.trace], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        triggerDownload(url, 'trace.txt');
+    });
+
+    function triggerDownload(blobUrl, fileName) {
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = fileName;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+    }
+
+
+</script>
+</body>
+</html>

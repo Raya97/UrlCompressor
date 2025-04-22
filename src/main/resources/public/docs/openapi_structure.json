@@ -1,0 +1,204 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "LIONESS API v2 - URL Shortener & Notes",
+    "description": "Сервіс дозволяє реєструватися, логінитися, створювати короткі посилання, керувати нотатками, авторизуватися через JWT та використовувати різні ролі (USER, MODERATOR, ADMIN).",
+    "version": "2.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/api/v2",
+      "description": "Local Development Server"
+    },
+    {
+      "url": "https://lioness.app/api/v2",
+      "description": "Production Server"
+    }
+  ],
+  "tags": [
+    { "name": "auth", "description": "Реєстрація, авторизація, оновлення та блокування JWT токенів" },
+    { "name": "url", "description": "Створення та керування короткими посиланнями" },
+    { "name": "notes", "description": "CRUD операції для нотаток користувачів" },
+    { "name": "admin", "description": "Адмінські функції" },
+    { "name": "moderator", "description": "Функції для модераторів" }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Реєстрація нового користувача",
+        "responses": {
+          "201": { "description": "Користувач успішно зареєстрований" },
+          "409": { "$ref": "#/components/responses/ErrorResponse" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Авторизація користувача",
+        "responses": {
+          "200": { "description": "Успішна авторизація з JWT" },
+          "401": { "$ref": "#/components/responses/ErrorResponse" }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Оновлення JWT токену",
+        "responses": {
+          "200": { "description": "Токен успішно оновлено" },
+          "401": { "$ref": "#/components/responses/ErrorResponse" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Логаут користувача",
+        "responses": {
+          "200": { "description": "Вихід успішний, токен додано до чорного списку" }
+        }
+      }
+    },
+    "/url": {
+      "post": {
+        "tags": ["url"],
+        "summary": "Створення короткого URL",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": { "$ref": "#/components/requestBodies/ShortUrlRequest" },
+        "responses": {
+          "201": { "$ref": "#/components/responses/ShortUrlResponse" },
+          "400": { "$ref": "#/components/responses/ErrorResponse" }
+        }
+      }
+    },
+    "/url/{shortUrl}": {
+      "get": {
+        "tags": ["url"],
+        "summary": "Отримати повний URL за скороченим",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "shortUrl",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Оригінальний URL отримано" },
+          "404": { "$ref": "#/components/responses/ErrorResponse" }
+        }
+      }
+    },
+    "/stats/{shortUrl}": {
+      "get": {
+        "tags": ["url"],
+        "summary": "Отримати статистику за скороченим URL",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "shortUrl",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Статистика отримана" },
+          "404": { "$ref": "#/components/responses/ErrorResponse" }
+        }
+      }
+    },
+    "/notes": {
+      "get": {
+        "tags": ["notes"],
+        "summary": "Отримати нотатки",
+        "responses": {
+          "200": { "description": "Усі нотатки користувача отримано" }
+        }
+      },
+      "post": {
+        "tags": ["notes"],
+        "summary": "Створити нотатку",
+        "responses": {
+          "201": { "description": "Нотатку створено" }
+        }
+      },
+      "put": {
+        "tags": ["notes"],
+        "summary": "Оновити нотатку",
+        "responses": {
+          "200": { "description": "Нотатку оновлено" }
+        }
+      },
+      "delete": {
+        "tags": ["notes"],
+        "summary": "Видалити нотатку",
+        "responses": {
+          "200": { "description": "Нотатку видалено" }
+        }
+      }
+    },
+    "/admin/test": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "Перевірка ролі ADMIN",
+        "responses": {
+          "200": { "description": "Доступ ADMIN підтверджено" }
+        }
+      }
+    },
+    "/moderator/test": {
+      "get": {
+        "tags": ["moderator"],
+        "summary": "Перевірка ролі MODERATOR",
+        "responses": {
+          "200": { "description": "Доступ MODERATOR підтверджено" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string", "example": "lioness_user" },
+          "password": { "type": "string", "example": "SecurePass123" }
+        }
+      }
+    },
+    "requestBodies": {
+      "ShortUrlRequest": {
+        "description": "Тіло запиту для створення скороченого URL",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "originalUrl": { "type": "string", "example": "https://example.com/page" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "ShortUrlResponse": {
+        "description": "Коротке посилання створено"
+      },
+      "ErrorResponse": {
+        "description": "Помилка"
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [{ "BearerAuth": [] }]
+}
